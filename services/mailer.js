@@ -27,6 +27,6 @@ module.exports = async ({ recipient, subject, html }) => {
       subject,
     });
   } catch (err) {
-    return new AppError(err.message, 500);
+    throw new AppError(err.message, 500);
   }
 };
