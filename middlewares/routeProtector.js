@@ -1,11 +1,17 @@
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
 
+const i18next = require("../config/i18next");
+
 const User = require("../models/user");
 const AppError = require("../helpers/AppError");
 
 const auth = async (req, res, next) => {
   try {
+    const lang = req.query.lang;
+
+    const t = i18next(lang || "en");
+
     let token = req.header("Authorization");
     if (token && token.startsWith("Bearer")) {
       const splitedToken = token.split(" ");
@@ -14,8 +20,8 @@ const auth = async (req, res, next) => {
       token = req.cookie.token;
     } else {
       throw new AppError(
-        "You are not logged in! Please log in to get access.",
-        400
+        t("You are not logged in! Please log in to get access"),
+        401
       );
     }
 
@@ -28,14 +34,14 @@ const auth = async (req, res, next) => {
 
     if (!currentUser)
       throw new AppError(
-        "The user belonging to this token does no longer exist.",
+        t("The user belonging to this token does no longer exist."),
         401
       );
 
     //* check if user changed their password after created token
     if (await currentUser.passwordChangedAfter(decodedToken.iat))
       throw new AppError(
-        "User recently updated password! please log in again.",
+        t("User recently updated password! please log in again."),
         401
       );
 

@@ -1,3 +1,4 @@
+const i18next = require("../config/i18next");
 const AppError = require("../helpers/AppError");
 
 //* error functions
@@ -24,11 +25,11 @@ const handleValidationErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
-const handleJWTError = () =>
-  new AppError("Invalid token. Please log in again!", 401);
+const handleJWTError = (t) =>
+  new AppError(t("Invalid token. Please log in again!"), 401);
 
-const handleJWTExpiredError = () =>
-  new AppError("Your token has expired! Please log in again.", 401);
+const handleJWTExpiredError = (t) =>
+  new AppError(t("Your token has expired! Please log in again."), 401);
 
 const handleZodError = (err) => {
   const errs = err.errors.map((item) => item.message);
@@ -80,6 +81,11 @@ const sendErrorDev = (err, req, res) =>
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
+
+  const lang = req.query.lang;
+
+  const t = i18next(lang || "en");
+
   if (process.env.NODE_ENV === "development") {
     if (err.name === "ZodError") return sendZodError(err, req, res);
     sendErrorDev(err, req, res);
@@ -93,8 +99,8 @@ module.exports = (err, req, res, next) => {
     if (error._message === "User validation failed") {
       error = handleValidationErrorDB(error);
     }
-    if (error.name === "JsonWebTokenError") error = handleJWTError();
-    if (error.name === "TokenExpiredError") error = handleJWTExpiredError();
+    if (error.name === "JsonWebTokenError") error = handleJWTError(t);
+    if (error.name === "TokenExpiredError") error = handleJWTExpiredError(t);
     if (error.name === "ZodError") error = handleZodError(error);
 
     sendErrorProd(error, req, res);

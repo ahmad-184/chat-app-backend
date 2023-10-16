@@ -1,6 +1,5 @@
 const crypto = require("crypto");
 
-const { ZodError } = require("zod");
 const optGenerator = require("otp-generator");
 
 const mailSender = require("../services/mailer");
@@ -19,12 +18,18 @@ const filterObj = require("../helpers/filterObj");
 const otpTemplate = require("../templates/mail/otp");
 const resetPassTemplate = require("../templates/mail/resetPassword");
 
+const i18next = require("../config/i18next");
+
 //* register user
 //* if user exist and verified then we send a messeage.
 //* if user exist but not verified then update user data and send otp code.
 //* if user not exist we create user and send otp code.
 exports.register = async (req, res, next) => {
   try {
+    const lang = req.query.lang;
+
+    const t = i18next(lang || "en");
+
     const filteredData = filterObj(
       req.body,
       "password",
@@ -34,12 +39,13 @@ exports.register = async (req, res, next) => {
       "email"
     );
 
-    await registerValidator.parse({ ...filteredData });
+    const validator = registerValidator(t);
+    await validator.parse(filteredData);
 
     const existing_user = await User.findOne({ email: filteredData.email });
 
     if (existing_user && Boolean(existing_user.verified))
-      throw new AppError("Email already in use, Please login.", 400);
+      throw new AppError(t("Email already in use, Please login"), 400);
     else if (existing_user) {
       //* update user data and send them to "verifyOtp" route.
       existing_user.firstname = filteredData.firstname;
@@ -67,11 +73,15 @@ exports.register = async (req, res, next) => {
 //* send otp code to they email
 exports.sendOtp = async (req, res, next) => {
   try {
+    const lang = req.query.lang;
     const userId = req.userId;
+
+    const t = i18next(lang || "en");
 
     const user = await User.findById(userId);
 
-    if (!user) throw new AppError("this user dos'nt exist.", 400);
+    if (!user)
+      throw new AppError(t("There is a problem, please try again"), 400);
 
     const generated_otp = optGenerator.generate(6, {
       lowerCaseAlphabets: false,
@@ -98,7 +108,7 @@ exports.sendOtp = async (req, res, next) => {
 
     res.status(200).json({
       status: 200,
-      message: "The verification code has been sent to your email.",
+      message: t("The verification code has been sent to your email"),
       otp: generated_otp,
     });
   } catch (err) {
@@ -110,15 +120,21 @@ exports.sendOtp = async (req, res, next) => {
 exports.verifyOtp = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
+    const lang = req.query.lang;
 
-    await emailValidator.parse({ email });
+    const t = i18next(lang || "en");
+
+    const validator = emailValidator(t);
+
+    await validator.parse({ email });
+    if (!otp) throw new AppError(t("verification code is required"), 400);
 
     const user = await User.findOne({ email });
 
     if (user.verified)
-      throw new AppError("You already verified, please login.", 400);
+      throw new AppError(t("You already verified, please login"), 400);
 
-    if (!user) throw new AppError("There is no user with this email.", 400);
+    if (!user) throw new AppError(t("There is no user with this email"), 400);
 
     //* finding user with email and otp_expiry_time
     const isOtpExpired = await User.findOne({
@@ -128,11 +144,12 @@ exports.verifyOtp = async (req, res, next) => {
 
     if (!isOtpExpired)
       throw new AppError(
-        "The verification code has expired, send a request again."
+        t("The verification code has expired, send a request again"),
+        400
       );
 
     if (!(await user.correctOTP(otp, user.otp)))
-      throw new AppError("The verification code is incorrect", 400);
+      throw new AppError(t("The verification code is incorrect"), 400);
 
     user.verified = true;
     user.otp = undefined;
@@ -140,13 +157,9 @@ exports.verifyOtp = async (req, res, next) => {
 
     await user.save();
 
-    const token = await createToken({ userId: user._id });
-
     res.status(200).json({
       status: 200,
-      message: "Registration was successful. Wellcome to Tawk",
-      token,
-      userId: user._id,
+      message: t("Registration was successful. please login"),
     });
   } catch (err) {
     console.log(err);
@@ -156,28 +169,35 @@ exports.verifyOtp = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   try {
+    const lang = req.query.lang;
+
+    const t = i18next(lang || "en");
+
     const { email, password } = req.body;
-    console.log(req.requestTime);
 
     if (!email || !password)
-      throw new AppError("Both email and password is required", 400);
+      throw new AppError(t("Both email and password is required"), 400);
 
-    await loginValidator.parse({ email, password });
+    const validator = loginValidator(t);
+    await validator.parse({ email, password });
 
     const user = await User.findOne({ email }).select("+password");
 
     if (!user || !(await user.correctPassword(password, user.password)))
-      throw new AppError("Email or password is incorrect", 400);
+      throw new AppError(t("Email or password is incorrect"), 400);
     if (!user.verified)
       throw new AppError(
-        "You are not allowed to access your account because your account has not been verified."
+        t(
+          "You are not allowed to access your account because your account has not been verified"
+        ),
+        401
       );
 
     const token = await createToken({ userId: user._id });
 
     res.status(200).json({
       status: 200,
-      message: "Logged in successfully",
+      message: t("Logged in successfully"),
       token,
       userId: user._id,
     });
@@ -189,14 +209,18 @@ exports.login = async (req, res, next) => {
 exports.forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
+    const lang = req.query.lang;
 
-    if (!email) throw new AppError("Email is required.", 400);
+    const t = i18next(lang || "en");
 
-    await emailValidator.parse({ email });
+    if (!email) throw new AppError(t("email is required"), 400);
+
+    const validator = emailValidator(t);
+    await validator.parse({ email });
 
     const user = await User.findOne({ email });
 
-    if (!user) throw new AppError("There is no user with this email", 400);
+    if (!user) throw new AppError(t("There is no user with this email"), 400);
 
     const resetToken = await crypto.randomBytes(32).toString("hex");
 
@@ -224,7 +248,7 @@ exports.forgotPassword = async (req, res, next) => {
       // await mailSender(mailData);
       res.status(200).json({
         status: 200,
-        message: "The password change link has been sent to your email.",
+        message: t("The password change link has been sent to your email"),
         resetToken,
       });
     } catch (err) {
@@ -234,7 +258,9 @@ exports.forgotPassword = async (req, res, next) => {
       await user.save({ validateBeforeSave: false });
 
       throw new AppError(
-        "Unfortunately, there is a problem in sending the email, please try again later.",
+        t(
+          "Unfortunately, there is a problem in sending the email, please try again later"
+        ),
         500
       );
     }
@@ -246,10 +272,14 @@ exports.forgotPassword = async (req, res, next) => {
 exports.resetPassword = async (req, res, next) => {
   try {
     const { token, password, confirmPassword } = req.body;
+    const lang = req.query.lang;
 
-    if (!token) throw new AppError("Token is required.", 400);
-    if (!password) throw new AppError("Your new password is required.");
-    if (!confirmPassword) throw new AppError("Confirm password is required.");
+    const t = i18next(lang || "en");
+
+    if (!token) throw new AppError(t("token is required"), 400);
+    if (!password) throw new AppError(t("your new password is required"), 400);
+    if (!confirmPassword)
+      throw new AppError(t("confirm password is required", 400));
 
     const hashedToken = await crypto
       .createHash("sha256")
@@ -260,7 +290,7 @@ exports.resetPassword = async (req, res, next) => {
 
     if (!user)
       throw new AppError(
-        "There is a problem, please request to change the password again.",
+        t("There is a problem, please request to change the password again"),
         400
       );
 
@@ -271,11 +301,12 @@ exports.resetPassword = async (req, res, next) => {
 
     if (!isTokenExpired)
       throw new AppError(
-        "Your time to change your password has expired. Please apply again.",
+        t("Your time to change your password has expired. Please apply again"),
         400
       );
 
-    await passwordsValidator.parse({ password, confirmPassword });
+    const validator = passwordsValidator(t);
+    await validator.parse({ password, confirmPassword });
 
     user.password = password;
     user.confirmPassword = confirmPassword;
@@ -290,7 +321,7 @@ exports.resetPassword = async (req, res, next) => {
 
     res.status(200).json({
       status: 200,
-      message: "Password changed successfully, Please login.",
+      message: t("Password changed successfully, Please login"),
     });
   } catch (err) {
     next(err);
