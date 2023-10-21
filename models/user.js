@@ -72,6 +72,10 @@ const userSchema = new mongoose.Schema({
   otp_expiry_time: {
     type: Date,
   },
+  forgotPasswordResendTimer: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 
 //* hashing password before creating user or updating password

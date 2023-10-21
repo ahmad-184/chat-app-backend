@@ -98,13 +98,13 @@ exports.sendOtp = async (req, res, next) => {
     await user.save();
 
     // TODO send otp to user email
-    // const mailData = {
-    //   recipient: user.email,
-    //   subject: "Tawk - verification code",
-    //   html: otpTemplate(user.firstname, generated_otp),
-    // };
+    const mailData = {
+      recipient: user.email,
+      subject: "Tawk - verification code",
+      html: otpTemplate(user.firstname, generated_otp),
+    };
 
-    // await mailSender(mailData);
+    await mailSender(mailData);
 
     res.status(200).json({
       status: 200,
@@ -222,48 +222,61 @@ exports.forgotPassword = async (req, res, next) => {
 
     if (!user) throw new AppError(t("There is no user with this email"), 400);
 
-    const resetToken = await crypto.randomBytes(32).toString("hex");
+    const currentTime = Date.now();
 
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
+    if (
+      user.forgotPasswordResendTimer < currentTime ||
+      !user.forgotPasswordResendTimer
+    ) {
+      const resetToken = await crypto.randomBytes(32).toString("hex");
 
-    user.passwordResetToken = hashedToken;
-    user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+      const hashedToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
 
-    await user.save();
+      user.passwordResetToken = hashedToken;
+      user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
-    const URL = `http://localhost:3000/reset-password?code=${resetToken}`;
+      await user.save();
 
-    try {
-      // TODO send URL to user email
+      const URL = `http://localhost:3000/auth/reset-password?code=${resetToken}`;
 
-      // const mailData = {
-      //   recipient: user.email,
-      //   subject: "Tawk - Link to reset your password",
-      //   html: resetPassTemplate(user.firstname, URL),
-      // };
+      try {
+        // TODO send URL to user email
 
-      // await mailSender(mailData);
-      res.status(200).json({
-        status: 200,
-        message: t("The password change link has been sent to your email"),
-        resetToken,
-      });
-    } catch (err) {
-      user.passwordResetToken = undefined;
-      user.passwordResetExpires = undefined;
+        const mailData = {
+          recipient: user.email,
+          subject: "Tawk - Link to reset your password",
+          html: resetPassTemplate(user.firstname, URL),
+        };
+        await mailSender(mailData);
 
-      await user.save({ validateBeforeSave: false });
+        // 1 minute
+        const timer = 1 * 60 * 1000;
 
-      throw new AppError(
-        t(
-          "Unfortunately, there is a problem in sending the email, please try again later"
-        ),
-        500
-      );
-    }
+        user.forgotPasswordResendTimer = Date.now() + timer;
+        await user.save();
+
+        res.status(200).json({
+          status: 200,
+          message: t("The password change link has been sent to your email"),
+          resetToken,
+        });
+      } catch (err) {
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
+
+        await user.save({ validateBeforeSave: false });
+
+        throw new AppError(
+          t(
+            "Unfortunately, there is a problem in sending the email, please try again later"
+          ),
+          500
+        );
+      }
+    } else throw new AppError("please try again after 3 minutes", 429);
   } catch (err) {
     next(err);
   }
@@ -276,7 +289,7 @@ exports.resetPassword = async (req, res, next) => {
 
     const t = i18next(lang || "en");
 
-    if (!token) throw new AppError(t("token is required"), 400);
+    if (!token) throw new AppError(t("Access denied"), 400);
     if (!password) throw new AppError(t("your new password is required"), 400);
     if (!confirmPassword)
       throw new AppError(t("confirm password is required", 400));
@@ -290,7 +303,7 @@ exports.resetPassword = async (req, res, next) => {
 
     if (!user)
       throw new AppError(
-        t("There is a problem, please request to change the password again"),
+        t("You can change your password only once per request"),
         400
       );
 
