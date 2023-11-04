@@ -12,8 +12,8 @@ const schema = new mongoose.Schema({
   status: {
     type: String,
     default: "waiting",
-    enum: ['Accepted', "Rejected", "waiting"]
-  }
+    enum: ["Accepted", "Rejected", "waiting"],
+  },
 });
 
 module.exports = mongoose.model("FriendRequest", schema);
