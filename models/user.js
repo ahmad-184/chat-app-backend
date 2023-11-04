@@ -1,4 +1,3 @@
-const crypto = require("crypto");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
@@ -76,9 +75,29 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  socket_id: {
+    type: String,
+  },
+  friends: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+    },
+  ],
+  status: {
+    type: String,
+    default: "Offline",
+    enum: ["Offline", "Online"],
+  },
+  blocks: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "User"
+    }
+  ]
 });
 
-//* hashing password before creating user or updating password
+// hashing password before creating user or updating password
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password") || !this.isModified("confirmPassword"))
     return next();
@@ -96,7 +115,7 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-//* hashing the otp before updating
+// hashing the otp before updating
 userSchema.pre("save", async function (next) {
   if (!this.isModified("otp")) return next();
 
@@ -109,19 +128,14 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-//* check if passwords are correct or not, return true / false
+// check if passwords are correct or not, return true / false
 userSchema.methods.correctPassword = function (candidatePass, userPass) {
   return bcrypt.compare(candidatePass, userPass);
 };
 
-//* check if otp's are correct or not, return true / false
+// check if otp's are correct or not, return true / false
 userSchema.methods.correctOTP = function (candidateOTP, userOTP) {
   return bcrypt.compare(candidateOTP, userOTP);
-};
-
-//* check if user changed their password after created token
-userSchema.methods.passwordChangedAfter = function (timestamp) {
-  return timestamp < this.passwordChangeAt;
 };
 
 module.exports = mongoose.model("User", userSchema);

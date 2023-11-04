@@ -9,4 +9,16 @@ const routes = new Router();
 // @Method POST update user info
 routes.post("/update_me", routeProtector, userCtrl.updateMe);
 
+// @Route http://localhost:9000/api/user/get_users
+// @Method GET get all users but not user and user friends
+routes.get("/get_users", routeProtector, userCtrl.getUsers);
+
+// @Route http://localhost:9000/api/user/get_friends
+// @Method GET get user friends
+routes.get("/get_friends", routeProtector, userCtrl.getFriends);
+
+// @Route http://localhost:9000/api/user/get_friend_requests
+// @Method GET get user friend requests
+routes.get("/get_friend_requests", routeProtector, userCtrl.getFriendRequests);
+
 module.exports = routes;

@@ -34,12 +34,15 @@ const auth = async (req, res, next) => {
 
     if (!currentUser)
       throw new AppError(
-        t("The user belonging to this token does no longer exist."),
+        t("The user belonging to this token does no longer exist"),
         401
       );
 
+    if (!currentUser.verified)
+      throw new AppError(t("Access denied, your account not verified."), 401);
+
     //* check if user changed their password after created token
-    if (await currentUser.passwordChangedAfter(decodedToken.iat))
+    if (decodedToken.iat < currentUser.passwordChangeAt)
       throw new AppError(
         t("User recently updated password! please log in again."),
         401

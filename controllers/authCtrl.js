@@ -241,6 +241,7 @@ exports.forgotPassword = async (req, res, next) => {
       await user.save();
 
       const URL = `http://localhost:3000/auth/reset-password?code=${resetToken}`;
+      console.log(URL);
 
       try {
         // TODO send URL to user email

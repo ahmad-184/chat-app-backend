@@ -1,5 +1,6 @@
 const http = require("http");
 const dotenv = require("dotenv");
+const { Server } = require("socket.io");
 
 const DbConnection = require("./config/db");
 
@@ -19,6 +20,13 @@ const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
   DbConnection();
   console.log(`server is running on port ${PORT}`);
+});
+
+exports.socket_io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
 });
 
 process.on("unhandledRejection", (err) => {

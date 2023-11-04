@@ -32,5 +32,12 @@
   "Your token has expired! Please log in again.": "Your token has expired! Please log in again.",
   "You are not logged in! Please log in to get access": "You are not logged in! Please log in to get access",
   "The user belonging to this token does no longer exist.": "The user belonging to this token does no longer exist.",
-  "User recently updated password! please log in again.": "User recently updated password! please log in again."
+  "User recently updated password! please log in again.": "User recently updated password! please log in again.",
+  "Access denied, your account not verified": "Access denied, your account not verified",
+  "Request sent successfully": "Request sent successfully",
+  "New friend request recived": "New friend request received",
+  "UserName was added to your friends list": "{{username}} was added to your friends list",
+  "UserName accepted your freind request": "{{username}} was accept your friend request",
+  "UserName request rejected successfully": "{{username}} request rejected successfully",
+  "UserName reject your friend request": "{{username}} was reject your friend request"
 }

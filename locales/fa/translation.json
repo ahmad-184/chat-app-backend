@@ -32,5 +32,12 @@
   "Your token has expired! Please log in again.": "توکن شما منقضی شده است, لطفا مجدد وارد شوید.",
   "You are not logged in! Please log in to get access": "برای دسترسی باید وارد شوید",
   "The user belonging to this token does no longer exist.": "کاربری که متعلق به این توکن میباشد دیگر وجود ندارد.",
-  "User recently updated password! please log in again.": "کاربر اخیرا رمز عبور خود را بروزرسانی کرده است, لطفا دوباره وارد شوید"
+  "User recently updated password! please log in again.": "کاربر اخیرا رمز عبور خود را بروزرسانی کرده است, لطفا دوباره وارد شوید",
+  "Access denied, your account not verified": "اجازه دسترسی ندارید, بدلیل اینکه اکانت شما تایید نشده است",
+  "Request sent successfully": "درخواست با موفقیت ارسال شد",
+  "New friend request recived": "درخواست دوستی جدیدی دریافت شد",
+  "UserName was added to your friends list": "{{username}} به لیست دوستان شما اضافه شد",
+  "UserName accepted your freind request": "{{username}} درخواست دوستی شما را پذیرفت",
+  "UserName request rejected successfully": "درخواست دوستی {{username}} با موفقیت رد شد",
+  "UserName reject your friend request": "{{username}} درخواست دوستی شما را رد کرد"
 }
