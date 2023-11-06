@@ -39,5 +39,6 @@
   "UserName was added to your friends list": "{{username}} was added to your friends list",
   "UserName accepted your freind request": "{{username}} was accept your friend request",
   "UserName request rejected successfully": "{{username}} request rejected successfully",
-  "UserName reject your friend request": "{{username}} was reject your friend request"
+  "UserName reject your friend request": "{{username}} was reject your friend request",
+  "You already sent request to this user": "You already sent request to this user"
 }

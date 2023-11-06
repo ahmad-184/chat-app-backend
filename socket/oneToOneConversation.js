@@ -5,6 +5,6 @@ module.exports = (socket) => {
     // send message
 
     socket.on("send_message", async () => {
-
+        socket.join
     })
 }

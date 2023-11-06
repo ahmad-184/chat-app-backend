@@ -40,7 +40,7 @@ exports.getUsers = async (req, res, next) => {
     const this_user = req.user;
 
     const allUsers = await User.find({ verified: true }).select(
-      "firstname lastname avatar _id"
+      "firstname lastname email avatar _id status"
     );
 
     const filteredUsers = allUsers.filter(
@@ -62,7 +62,7 @@ exports.getFriends = async (req, res, next) => {
   try {
     const { friends } = await User.findById(req.user._id).populate(
       "friends",
-      "firstnamae lastname avatar _id"
+      "firstnamae lastname email avatar _id  status"
     );
 
     res.status(200).json({
@@ -78,7 +78,7 @@ exports.getFriendRequests = async (req, res, next) => {
   try {
     const requests = await FriendRequest.find({
       recipient: req.user._id,
-    }).populate("sender", "firstnamae lastname avatar _id");
+    }).populate("sender", "firstnamae email lastname avatar _id  status");
 
     res.status(200).json({
       status: 200,

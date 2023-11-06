@@ -80,7 +80,7 @@ const userSchema = new mongoose.Schema({
   },
   friends: [
     {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
   ],
@@ -91,7 +91,7 @@ const userSchema = new mongoose.Schema({
   },
   blocks: [
     {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User"
     }
   ]

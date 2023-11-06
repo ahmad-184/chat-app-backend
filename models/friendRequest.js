@@ -2,12 +2,14 @@ const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema({
   sender: {
-    type: mongoose.Schema.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+    required: [true, 'sender id is required']
   },
-  recipient: {
-    type: mongoose.Schema.ObjectId,
+  reciver: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+    required: [true, 'recipient id is required']
   },
   status: {
     type: String,

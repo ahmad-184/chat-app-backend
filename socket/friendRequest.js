@@ -9,17 +9,29 @@ module.exports = (socket) => {
     const to = await User.findById(data.to);
     const from = await User.findById(data.from);
 
-    await FriendRequest.create({
-      from: data.from,
-      to: data.to,
-    });
+    const existing_request = await FriendRequest.find({
+      sender: data.from,
+      reciver: data.to,
+    })
 
-    socket.to(to.socket_id).emit("new_friend_request", {
-      message: t("New friend request recived"),
-    });
-    socket.to(from.socket_id).emit("friend_request_sent", {
-      message: t("Request sent successfully"),
-    });
+    if(existing_request.length === 0) {
+      await FriendRequest.create({
+        sender: data.from,
+        reciver: data.to,
+      });
+  
+      socket.to(to.socket_id).emit("new_friend_request", {
+        message: t("New friend request recived"),
+      });
+      socket.to(from.socket_id).emit("friend_request_sent", {
+        message: t("Request sent successfully"),
+      });
+    }
+    else {
+      socket.to(from.socket_id).emit("error", {
+        message: t("You already sent request to this user"),
+      });
+    }
   });
 
   socket.on("accept_friend_request", async (data) => {

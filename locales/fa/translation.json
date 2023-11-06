@@ -39,5 +39,6 @@
   "UserName was added to your friends list": "{{username}} به لیست دوستان شما اضافه شد",
   "UserName accepted your freind request": "{{username}} درخواست دوستی شما را پذیرفت",
   "UserName request rejected successfully": "درخواست دوستی {{username}} با موفقیت رد شد",
-  "UserName reject your friend request": "{{username}} درخواست دوستی شما را رد کرد"
+  "UserName reject your friend request": "{{username}} درخواست دوستی شما را رد کرد",
+  "You already sent request to this user": "شما قبلا به این کاربر درخواست دوستی فرستاده بودید"
 }
