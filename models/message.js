@@ -4,26 +4,26 @@ const schema = new mongoose.Schema({
   converstation_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "OneToOneConversation",
-    required: true
+    required: true,
   },
   sender: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true
+    required: true,
   },
   reciver: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true
+    required: true,
   },
   type: {
     type: String,
     enum: ["Text", "Image", "Video", "Link", "Doc", "Voice", "Replay"],
-    required: true
+    required: true,
   },
   replay: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Message"
+    ref: "Message",
   },
   text: {
     type: String,
@@ -40,8 +40,8 @@ const schema = new mongoose.Schema({
     type: String,
   },
   thumbnail: {
-    type: String
-  }
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("Message", schema);

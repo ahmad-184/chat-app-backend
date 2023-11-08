@@ -92,9 +92,9 @@ const userSchema = new mongoose.Schema({
   blocks: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
-    }
-  ]
+      ref: "User",
+    },
+  ],
 });
 
 // hashing password before creating user or updating password

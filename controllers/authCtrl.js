@@ -195,10 +195,19 @@ exports.login = async (req, res, next) => {
 
     const token = await createToken({ userId: user._id });
 
+    const userInfo = {
+      firstname: user.firstname,
+      lastname: user.lastname,
+      avatar: user.avatar,
+      email: user.email,
+      about: user.about,
+    };
+
     res.status(200).json({
       status: 200,
       message: t("Logged in successfully"),
       token,
+      user: userInfo,
       userId: user._id,
     });
   } catch (err) {

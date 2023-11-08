@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const xss = require("xss-clean");
+const session = require("express-session");
 
 const AppError = require("./helpers/AppError");
 
@@ -35,9 +36,20 @@ app.use(mongoSanitize());
 
 app.use(xss());
 
+const sess = {
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+};
+
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
+} else {
+  app.set("trust proxy", 1);
+  sess.cookie.secure = true;
 }
+
+app.use(session(sess));
 
 //* Test middleware
 app.use((req, res, next) => {

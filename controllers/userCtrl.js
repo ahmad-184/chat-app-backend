@@ -62,7 +62,7 @@ exports.getFriends = async (req, res, next) => {
   try {
     const { friends } = await User.findById(req.user._id).populate(
       "friends",
-      "firstnamae lastname email avatar _id  status"
+      "firstname lastname email avatar _id  status"
     );
 
     res.status(200).json({
@@ -74,15 +74,24 @@ exports.getFriends = async (req, res, next) => {
   }
 };
 
+// first: get friends request you set
+// second: get friend request user set to you
 exports.getFriendRequests = async (req, res, next) => {
   try {
-    const requests = await FriendRequest.find({
-      recipient: req.user._id,
-    }).populate("sender", "firstnamae email lastname avatar _id  status");
+    const friendRequests_forMe = await FriendRequest.find({
+      reciver: req.user._id,
+    }).populate("sender", "firstname email lastname avatar _id  status");
+
+    const FriendRequest_I_Sent = await FriendRequest.find({
+      sender: req.user._id,
+    }).populate("reciver", "firstname email lastname avatar _id  status");
 
     res.status(200).json({
       status: 200,
-      data: requests,
+      data: {
+        forMe: friendRequests_forMe,
+        iSent: FriendRequest_I_Sent,
+      },
     });
   } catch (err) {
     next(err);

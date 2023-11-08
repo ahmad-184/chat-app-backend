@@ -4,17 +4,17 @@ const schema = new mongoose.Schema({
   sender: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: [true, 'sender id is required']
+    required: [true, "sender id is required"],
   },
   reciver: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: [true, 'recipient id is required']
+    required: [true, "recipient id is required"],
   },
   status: {
     type: String,
-    default: "waiting",
-    enum: ["Accepted", "Rejected", "waiting"],
+    default: "Pending",
+    enum: ["Accepted", "Rejected", "Pending"],
   },
 });
 
