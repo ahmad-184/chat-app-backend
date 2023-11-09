@@ -80,6 +80,7 @@ exports.getFriendRequests = async (req, res, next) => {
   try {
     const friendRequests_forMe = await FriendRequest.find({
       reciver: req.user._id,
+      status: "Pending",
     }).populate("sender", "firstname email lastname avatar _id  status");
 
     const FriendRequest_I_Sent = await FriendRequest.find({
@@ -89,8 +90,8 @@ exports.getFriendRequests = async (req, res, next) => {
     res.status(200).json({
       status: 200,
       data: {
-        forMe: friendRequests_forMe,
-        iSent: FriendRequest_I_Sent,
+        received: friendRequests_forMe,
+        sent: FriendRequest_I_Sent,
       },
     });
   } catch (err) {
