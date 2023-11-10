@@ -45,11 +45,17 @@ module.exports = (socket, lang) => {
     callback("Request sent");
   });
 
-  socket.on("accept_friend_request", async (data) => {
+  socket.on("accept_friend_request", async (data, callback) => {
     const request = await FriendRequest.findById(data.request_id);
     if (!request)
       return socket.emit("request_not_exist", {
         message: "this request dos not exist enymore",
+        request_id: data.request_id,
+      });
+
+    if (request.status === "Rejected")
+      return socket.emit("request_not_exist", {
+        message: "You reject this request",
         request_id: data.request_id,
       });
 
@@ -78,11 +84,11 @@ module.exports = (socket, lang) => {
         avatar: user_receiver.avatar,
       },
     });
-    socket.emit("request_accepted", {
+
+    callback({
       message: t("UserName was added to your friends list", {
         username: `${user_sender.firstname} ${user_sender.lastname}`,
       }),
-      request_id: request._id,
       friend: {
         _id: user_sender._id,
         firstname: user_sender.firstname,
@@ -93,11 +99,17 @@ module.exports = (socket, lang) => {
     });
   });
 
-  socket.on("reject_friend_request", async (data) => {
+  socket.on("reject_friend_request", async function (data, callback) {
     const request = await FriendRequest.findById(data.request_id);
     if (!request)
       return socket.emit("request_not_exist", {
         message: "this request dos not exist enymore",
+        request_id: data.request_id,
+      });
+
+    if (request.status === "Rejected")
+      return socket.emit("request_not_exist", {
+        message: "You already reject this request",
         request_id: data.request_id,
       });
 
@@ -113,18 +125,21 @@ module.exports = (socket, lang) => {
       }),
       request_id: request._id,
     });
-    socket.emit("request_rejected", {
+
+    callback({
       message: t("Request rejected successfully"),
       request_id: request._id,
     });
   });
-  socket.on("delete_friend_request", async (data) => {
+
+  socket.on("delete_friend_request", async (data, callback) => {
     const request = await FriendRequest.findById(data.request_id);
     if (!request)
       return socket.emit("error", { message: "Request not defined" });
     else {
       await FriendRequest.findByIdAndDelete(data.request_id);
-      socket.emit("request_deleted", {
+
+      callback({
         message: "Request deleted successfuly",
         request_id: request._id,
       });

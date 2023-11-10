@@ -49,6 +49,7 @@ const socket_io = new Server(server, {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
+  connectionStateRecovery: {},
 });
 
 socket_io.on("connection", async (socket) => {
