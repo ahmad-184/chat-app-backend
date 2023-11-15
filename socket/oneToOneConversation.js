@@ -72,41 +72,6 @@ module.exports = (socket, t) => {
     }
   });
 
-  socket.on("get_conversations", async ({ user_id }, callback) => {
-    let conversations = [];
-    const user_conversations = await OneToOneConversation.find({
-      users: {
-        $all: [user_id],
-      },
-    });
-
-    for (let conversation of user_conversations) {
-      const friend_id = conversation.users.filter(
-        (item) => item.toString() !== user_id.toString()
-      );
-      const friendDoc = await User.findById(friend_id[0]);
-
-      const messages = await Message.find({
-        conversation_id: conversation._id,
-      }).sort({ createdAt: "desc" });
-
-      let data = {
-        _id: conversation._id,
-        friend_id: friendDoc._id,
-        name: `${friendDoc.firstname} ${friendDoc.lastname}`,
-        avatar: friendDoc.avatar,
-        status: friendDoc.status,
-        lastSeen: friendDoc.lastSeen || "",
-        last_message: messages[0] || {},
-        typing: false,
-      };
-
-      conversations.push(data);
-    }
-
-    callback(conversations);
-  });
-
   socket.on("join_a_chat_conversation", async ({ room_id }, callback) => {
     if (!room_id)
       return socket.emit("error", {
@@ -142,11 +107,19 @@ module.exports = (socket, t) => {
         message: "This conversation dos not exist",
       });
 
+    let msg;
+
+    if (!message.file) {
+      msg = await Message.create({
+        ...message,
+      });
+    }
+
     Promise.all([
       conversation.users.forEach((id) => {
         if (id.toString() === user_id) return;
-        else socket.to(id.toString()).emit("new_message", { message });
+        else socket.to(id.toString()).emit("new_message", { message: msg });
       }),
-    ]).then(() => callback({ message }));
+    ]).then(() => callback({ message: msg }));
   });
 };

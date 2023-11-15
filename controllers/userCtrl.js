@@ -134,7 +134,7 @@ exports.getConversations = async (req, res, next) => {
 
       conversations.push(data);
     }
-    res.status(200).json({ conversations });
+    res.status(200).json({ data: conversations, status: 200 });
   } catch (err) {
     next(err);
   }

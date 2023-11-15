@@ -39,11 +39,9 @@ const schema = new mongoose.Schema({
   file: {
     type: String,
   },
-  thumbnail: {
-    type: String,
-  },
   status: {
     type: String,
+    default: "Delivered",
     enum: ["Delivered", "Seen"],
   },
 });
