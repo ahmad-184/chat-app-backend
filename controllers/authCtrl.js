@@ -340,7 +340,7 @@ exports.resetPassword = async (req, res, next) => {
 
     await user.save();
 
-    // TODO send user a email to let know password is change
+    // TODO send user a email to let know password changed successfully
 
     res.status(200).json({
       status: 200,

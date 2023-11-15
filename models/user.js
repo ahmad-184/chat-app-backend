@@ -95,6 +95,9 @@ const userSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  lastSeen: {
+    type: Date,
+  },
 });
 
 // hashing password before creating user or updating password

@@ -40,9 +40,11 @@ process.on("SIGTERM", () => {
 
 // socket realtime functionalitis
 
-const User = require("./models/user");
 const friendRequest = require("./socket/friendRequest");
 const oneToOneConversation = require("./socket/oneToOneConversation");
+const updateFriendsStatus = require("./socket/updateFriendsStatus");
+const updateFriendsTypingStatus = require("./socket/updateFriendsTypingStatus");
+const protector = require("./socket/protector");
 
 const socket_io = new Server(server, {
   cors: {
@@ -60,31 +62,16 @@ socket_io.on("connection", async (socket) => {
   let current_lang = socket.handshake.query.lang;
   let t = i18(current_lang || "en");
 
-  if (!Boolean(authToken)) {
-    socket.emit(
-      "error",
-      t("You are not logged in! Please log in to get access")
-    );
-    socket.disconnect(0);
+  await protector(socket, t);
+
+  if (Boolean(user_id) && Boolean(socket_id) && Boolean(authToken)) {
+    updateFriendsStatus(socket, user_id, socket_id, "Online");
+    socket.join(user_id);
   }
 
-  if (!Boolean(user_id)) {
-    socket.emit("error", t("User id is required"));
-  }
-
-  const user = await User.findByIdAndUpdate(
-    user_id,
-    {
-      socket_id,
-      status: "Online",
-    },
-    { new: true }
-  ).then((item) => {
-    console.log(`${item.firstname} ${item.lastname} is ${item.status}`);
-  });
-
-  friendRequest(socket, current_lang);
-  oneToOneConversation(socket, current_lang);
+  friendRequest(socket, t);
+  oneToOneConversation(socket, t);
+  updateFriendsTypingStatus(socket, t);
 
   socket.on("lang_changed", ({ lang }) => {
     current_lang = lang;
@@ -92,14 +79,7 @@ socket_io.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", async () => {
-    await User.findByIdAndUpdate(
-      user_id,
-      { status: "Offline" },
-      { new: true }
-    ).then((item) => {
-      console.log(`${item.firstname} ${item.lastname} is ${item.status}`);
-    });
+    updateFriendsStatus(socket, user_id, socket_id, "Offline");
     socket.disconnect(0);
-    // socket_io.close((err) => console.log(err));
   });
 });

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema({
-  converstation_id: {
+  conversation_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "OneToOneConversation",
     required: true,
@@ -11,7 +11,7 @@ const schema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  reciver: {
+  receiver: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
@@ -41,6 +41,10 @@ const schema = new mongoose.Schema({
   },
   thumbnail: {
     type: String,
+  },
+  status: {
+    type: String,
+    enum: ["Delivered", "Seen"],
   },
 });
 

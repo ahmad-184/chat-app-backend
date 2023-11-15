@@ -2,9 +2,7 @@ const User = require("../models/user");
 const FriendRequest = require("../models/friendRequest");
 const i18next = require("../config/i18next");
 
-module.exports = (socket, lang) => {
-  const t = i18next(lang || "en");
-
+module.exports = (socket, t) => {
   // send friend request to user
   socket.on("friend_request", async (data, callback) => {
     const to = await User.findById(data.to);
