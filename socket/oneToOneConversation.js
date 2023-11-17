@@ -44,10 +44,16 @@ module.exports = (socket, t) => {
         conversation_id: conversation._id,
       });
 
+      const unseenMessagesCount = await Message.find({
+        conversation_id: conversation._id,
+        status: "Delivered",
+      }).countDocuments();
+
       data = {
         _id: conversation._id,
         ...data,
         last_message: messages[messages.length - 1] || {},
+        unseen: unseenMessagesCount || 0,
       };
 
       callback({
@@ -58,11 +64,16 @@ module.exports = (socket, t) => {
       const messages = await Message.find({
         conversation_id: isConversationExists[0]._id,
       });
+      const unseenMessagesCount = await Message.find({
+        conversation_id: isConversationExists[0]._id,
+        status: "Delivered",
+      });
 
       data = {
         _id: isConversationExists[0]._id,
         ...data,
         last_message: messages[messages.length - 1] || {},
+        unseen: unseenMessagesCount || 0,
       };
 
       callback({
@@ -108,10 +119,12 @@ module.exports = (socket, t) => {
       });
 
     let msg;
+    const newMsg = message;
+    newMsg.status = "Delivered";
 
     if (!message.file) {
       msg = await Message.create({
-        ...message,
+        ...newMsg,
       });
     }
 

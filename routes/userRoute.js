@@ -21,8 +21,4 @@ routes.get("/get_friends", routeProtector, userCtrl.getFriends);
 // @Method GET get user friend requests
 routes.get("/get_friend_requests", routeProtector, userCtrl.getFriendRequests);
 
-// @Route http://localhost:9000/api/user/get_conversations
-// @Method GET get user conversations
-routes.get("/get_conversations", routeProtector, userCtrl.getConversations);
-
 module.exports = routes;
