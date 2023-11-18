@@ -1,3 +1,5 @@
+const { v4: uuid4 } = require("uuid");
+
 const Message = require("../models/message");
 const OneToOneConversation = require("../models/oneToOneConversation");
 const User = require("../models/user");
@@ -8,7 +10,37 @@ exports.getMessages = async (req, res, next) => {
     const messages = await Message.find({ conversation_id: id }).populate(
       "replay"
     );
-    res.status(200).json({ data: messages, status: 200 });
+
+    let itemsArray = [];
+    let date = "";
+    for (let item of messages) {
+      if (!date || date === "" || !date.length) {
+        date = item.createdAt_day;
+        itemsArray = [
+          {
+            _id: uuid4(),
+            type: "timeline",
+            date: item.createdAt_day,
+          },
+          item,
+        ];
+      } else if (date && date === item.createdAt_day) {
+        itemsArray.push(item);
+      } else if (date && date !== item.createdAt_day) {
+        date = item.createdAt_day;
+        itemsArray = [
+          ...itemsArray,
+          {
+            _id: uuid4(),
+            type: "timeline",
+            date: item.createdAt_day,
+          },
+          item,
+        ];
+      }
+    }
+
+    res.status(200).json({ data: itemsArray, status: 200 });
   } catch (err) {
     next(err);
   }

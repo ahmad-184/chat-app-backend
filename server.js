@@ -78,6 +78,10 @@ socket_io.on("connection", async (socket) => {
     t = i18(current_lang || "en");
   });
 
+  socket.on("get_m", async (status) => {
+    console.log(status);
+  });
+
   socket.on("disconnect", async () => {
     updateFriendsStatus(socket, user_id, socket_id, "Offline");
     socket.disconnect(0);

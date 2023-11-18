@@ -89,7 +89,7 @@ const userSchema = new mongoose.Schema({
     default: "Offline",
     enum: ["Offline", "Online"],
   },
-  blocks: [
+  blocked_friends: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

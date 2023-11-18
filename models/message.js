@@ -39,7 +39,10 @@ const schema = new mongoose.Schema(
     status: {
       type: String,
       default: "Delivered",
-      enum: ["Created", "Delivered", "Seen"],
+      enum: ["Delivered", "Seen"],
+    },
+    createdAt_day: {
+      type: String,
     },
   },
   { timestamps: true }
