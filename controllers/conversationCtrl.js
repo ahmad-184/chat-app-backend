@@ -11,36 +11,7 @@ exports.getMessages = async (req, res, next) => {
       "replay"
     );
 
-    let itemsArray = [];
-    let date = "";
-    for (let item of messages) {
-      if (!date || date === "" || !date.length) {
-        date = item.createdAt_day;
-        itemsArray = [
-          {
-            _id: uuid4(),
-            type: "timeline",
-            date: item.createdAt_day,
-          },
-          item,
-        ];
-      } else if (date && date === item.createdAt_day) {
-        itemsArray.push(item);
-      } else if (date && date !== item.createdAt_day) {
-        date = item.createdAt_day;
-        itemsArray = [
-          ...itemsArray,
-          {
-            _id: uuid4(),
-            type: "timeline",
-            date: item.createdAt_day,
-          },
-          item,
-        ];
-      }
-    }
-
-    res.status(200).json({ data: itemsArray, status: 200 });
+    res.status(200).json({ data: messages, status: 200 });
   } catch (err) {
     next(err);
   }
@@ -68,7 +39,11 @@ exports.getConversations = async (req, res, next) => {
 
       const unseenMessagesCount = await Message.find({
         conversation_id: conversation._id,
-      }).countDocuments();
+        sender: friend_id,
+        status: "Delivered",
+      });
+
+      const unseen = unseenMessagesCount.map((item) => item._id);
 
       let data = {
         _id: conversation._id,
@@ -79,7 +54,7 @@ exports.getConversations = async (req, res, next) => {
         lastSeen: friendDoc.lastSeen || "",
         last_message: messages[0] || {},
         typing: false,
-        unseen: unseenMessagesCount || 0,
+        unseen: unseen,
       };
 
       conversations.push(data);

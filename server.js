@@ -44,6 +44,7 @@ const friendRequest = require("./socket/friendRequest");
 const oneToOneConversation = require("./socket/oneToOneConversation");
 const updateFriendsStatus = require("./socket/updateFriendsStatus");
 const updateFriendsTypingStatus = require("./socket/updateFriendsTypingStatus");
+const updateMessageStatus = require("./socket/updateMessageStatus");
 const protector = require("./socket/protector");
 
 const socket_io = new Server(server, {
@@ -72,14 +73,15 @@ socket_io.on("connection", async (socket) => {
   friendRequest(socket, t);
   oneToOneConversation(socket, t);
   updateFriendsTypingStatus(socket, t);
+  updateMessageStatus(socket, t);
 
   socket.on("lang_changed", ({ lang }) => {
     current_lang = lang;
     t = i18(current_lang || "en");
   });
 
-  socket.on("get_m", async (status) => {
-    console.log(status);
+  socket.on("ping", (callback) => {
+    callback();
   });
 
   socket.on("disconnect", async () => {
