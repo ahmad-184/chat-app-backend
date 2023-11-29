@@ -13,12 +13,12 @@ module.exports = async (socket, t) => {
     await message.save({ new: true, validateModifiedOnly: true });
 
     const senderDoc = await User.findById(message.sender);
-    console.log(senderDoc);
     if (senderDoc.status === "Online") {
-      console.log("message_status_changed");
-      socket
-        .to(senderDoc.socket_id)
-        .emit("message_status_changed", { message_id });
+      socket.to(senderDoc.socket_id).emit("message_status_changed", {
+        message_id,
+        conv_id: message.conversation_id,
+      });
+      console.log("seen msg:", message_id, message.conversation_id);
     }
   });
 };

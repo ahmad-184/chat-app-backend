@@ -54,6 +54,7 @@ module.exports = (socket, t) => {
         ...data,
         last_message: messages[messages.length - 1] || {},
         unseen: unseenMessagesCount || 0,
+        createdAt: conversation.createdAt,
       };
 
       callback({

@@ -1,17 +1,29 @@
-const { v4: uuid4 } = require("uuid");
-
 const Message = require("../models/message");
 const OneToOneConversation = require("../models/oneToOneConversation");
 const User = require("../models/user");
 
 exports.getMessages = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const messages = await Message.find({ conversation_id: id }).populate(
-      "replay"
-    );
+    const perPage = req.perPage || 25;
+    const page = parseInt(req.query.page) + 1 || 1;
 
-    res.status(200).json({ data: messages, status: 200 });
+    const { id } = req.params;
+    const numberOfMessages = await Message.find({
+      conversation_id: id,
+    }).countDocuments();
+    const messages = await Message.find({ conversation_id: id })
+      .populate("replay")
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * perPage)
+      .limit(25);
+
+    res.status(200).json({
+      data: messages,
+      currentPage: page,
+      nextPage: page + 1,
+      hasNextPage: perPage * page < numberOfMessages,
+      status: 200,
+    });
   } catch (err) {
     next(err);
   }
@@ -54,7 +66,8 @@ exports.getConversations = async (req, res, next) => {
         lastSeen: friendDoc.lastSeen || "",
         last_message: messages[0] || {},
         typing: false,
-        unseen: unseen,
+        unseen,
+        createdAt: conversation.createdAt,
       };
 
       conversations.push(data);
