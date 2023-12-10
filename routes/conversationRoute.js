@@ -17,4 +17,8 @@ routes.get(
 // @Method GET get conversation messages
 routes.get("/get_messages/:id", routeProtector, conversationCtrl.getMessages);
 
+// @Route http://localhost:9000/api/conversation/create_message
+// @Method POST create a message
+routes.post("/create_message", routeProtector, conversationCtrl.createMessage);
+
 module.exports = routes;

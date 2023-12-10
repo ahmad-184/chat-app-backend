@@ -8,6 +8,8 @@ module.exports = (socket, t) => {
       if (!conversation)
         return socket.emit("error", {
           message: "This conversation dos not exist",
+          code: "CONV_NOT_EXIST",
+          conv_id: conversatoin_id,
         });
       conversation.users.forEach((id) => {
         if (id.toString() === user_id) return;

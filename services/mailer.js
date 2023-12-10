@@ -2,16 +2,17 @@ const nodemailer = require("nodemailer");
 
 const AppError = require("../helpers/AppError");
 
-const sender = process.env.MAIL_SENDER;
+const user = process.env.MAIL_SENDER;
+const pass = process.env.MAIL_PASS;
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp-relay.brevo.com",
-  port: "587",
-  secure: false,
+  service: "Gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
-    user: sender,
-    pass: process.env.MAIL_PASS,
+    user,
+    pass,
   },
   tls: {
     rejectUnauthorized: false,
@@ -21,12 +22,12 @@ const transporter = nodemailer.createTransport({
 module.exports = async ({ recipient, subject, html }) => {
   try {
     await transporter.sendMail({
-      from: sender,
+      from: user,
       to: recipient,
       html,
       subject,
     });
   } catch (err) {
-    throw new AppError(err.message, 500);
+    throw new AppError("Email Err:" + err.message, 500);
   }
 };

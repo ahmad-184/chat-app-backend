@@ -36,7 +36,7 @@ module.exports = (socket, t) => {
       reciver: data.to,
     });
 
-    socket.to(to.socket_id).emit("new_friend_request", {
+    socket.to(to._id.toString()).emit("new_friend_request", {
       message: t("New friend request recived"),
     });
 
@@ -69,7 +69,7 @@ module.exports = (socket, t) => {
     request.status = "Accepted";
     await request.save({ new: true, validateModifiedOnly: true });
 
-    socket.to(user_sender.socket_id).emit("your_friend_request_accepted", {
+    socket.to(user_sender._id.toString()).emit("your_friend_request_accepted", {
       message: t("UserName accepted your freind request", {
         username: `${user_receiver.firstname} ${user_receiver.lastname}`,
       }),
@@ -117,7 +117,7 @@ module.exports = (socket, t) => {
     request.status = "Rejected";
     await request.save({ new: true, validateModifiedOnly: true });
 
-    socket.to(user_sender.socket_id).emit("your_request_rejected", {
+    socket.to(user_sender._id.toString()).emit("your_request_rejected", {
       message: t("UserName reject your friend request", {
         username: `${user_receiver.firstname} ${user_receiver.lastname}`,
       }),

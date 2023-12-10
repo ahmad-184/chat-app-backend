@@ -4,6 +4,10 @@ const routes = new Router();
 
 const authCtrl = require("../controllers/authCtrl");
 
+// @Route http://localhost:9000/api/auth/verify_token
+// @Method POST verify user token
+routes.post("/verify_token", authCtrl.verifyToken);
+
 // @Route http://localhost:9000/api/auth/login
 // @Method POST login user
 routes.post("/login", authCtrl.login);

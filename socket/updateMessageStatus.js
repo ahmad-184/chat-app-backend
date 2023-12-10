@@ -7,18 +7,16 @@ module.exports = async (socket, t) => {
     if (!message)
       return socket.emit("error", {
         message: "This message dosnt exist enymore",
+        code: "CONV_NOT_EXIST",
       });
     if (message.status === "Seen") return;
     message.status = "Seen";
     await message.save({ new: true, validateModifiedOnly: true });
 
     const senderDoc = await User.findById(message.sender);
-    if (senderDoc.status === "Online") {
-      socket.to(senderDoc.socket_id).emit("message_status_changed", {
-        message_id,
-        conv_id: message.conversation_id,
-      });
-      console.log("seen msg:", message_id, message.conversation_id);
-    }
+    socket.to(senderDoc._id.toString()).emit("message_status_changed", {
+      message_id,
+      conv_id: message.conversation_id,
+    });
   });
 };

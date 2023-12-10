@@ -18,8 +18,8 @@ module.exports = async (socket, user_id, socket_id, status) => {
   ).populate("friends");
 
   Promise.all([
-    friends.map(({ socket_id }) => {
-      socket.to(socket_id).emit("update_friends_status", {
+    friends.map(({ _id }) => {
+      socket.to(_id.toString()).emit("update_friends_status", {
         friend_id: user_id,
         friend_status: user_status,
         lastSeen: Date.now(),

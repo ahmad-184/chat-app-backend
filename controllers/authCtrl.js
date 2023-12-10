@@ -1,4 +1,6 @@
 const crypto = require("crypto");
+const { promisify } = require("util");
+const jwt = require("jsonwebtoken");
 
 const optGenerator = require("otp-generator");
 
@@ -19,6 +21,47 @@ const otpTemplate = require("../templates/mail/otp");
 const resetPassTemplate = require("../templates/mail/resetPassword");
 
 const i18next = require("../config/i18next");
+
+exports.verifyToken = async (req, res, next) => {
+  try {
+    const lang = req.query.lang;
+    const t = i18next(lang || "en");
+    const token = req.body.token;
+
+    if (!token)
+      throw new AppError(
+        t("You are not logged in! Please log in to get access"),
+        401
+      );
+
+    const decodedToken = await promisify(jwt.verify)(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    const currentUser = await User.findById(decodedToken.userId);
+
+    if (!currentUser)
+      throw new AppError(
+        t("The user belonging to this token does no longer exist"),
+        401
+      );
+
+    if (!currentUser.verified)
+      throw new AppError(t("Access denied, your account not verified."), 401);
+
+    //* check if user changed their password after created token
+    if (decodedToken.iat < currentUser.passwordChangeAt)
+      throw new AppError(
+        t("User recently updated password! please log in again."),
+        401
+      );
+
+    res.status(200).json({ status: "OK" });
+  } catch (err) {
+    next(err);
+  }
+};
 
 //* register user
 //* if user exist and verified then we send a messeage.

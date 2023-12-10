@@ -28,11 +28,13 @@ module.exports = async (socket, t) => {
       t("The user belonging to this token does no longer exist")
     );
     socket.disconnect(0);
+    return;
   }
 
   if (!currentUser.verified) {
     socket.emit("auth_error", t("Access denied, your account not verified."));
     socket.disconnect(0);
+    return;
   }
 
   //* check if user changed their password after created token
@@ -42,5 +44,6 @@ module.exports = async (socket, t) => {
       t("User recently updated password! please log in again.")
     );
     socket.disconnect(0);
+    return;
   }
 };

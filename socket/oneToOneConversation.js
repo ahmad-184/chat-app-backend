@@ -94,6 +94,8 @@ module.exports = (socket, t) => {
     if (!Boolean(isConversationExists))
       return socket.emit("error", {
         message: "This conversation not exist",
+        code: "CONV_NOT_EXIST",
+        conv_id: room_id,
       });
 
     await socket.join(room_id);
@@ -112,28 +114,22 @@ module.exports = (socket, t) => {
     callback({ message: "Leaved room" });
   });
 
-  socket.on("send_message", async ({ message, room_id, user_id }, callback) => {
+  socket.on("send_message", async ({ message_id, room_id, user_id }) => {
     const conversation = await OneToOneConversation.findById(room_id);
     if (!conversation)
       return socket.emit("error", {
         message: "This conversation dos not exist",
+        code: "CONV_NOT_EXIST",
+        conv_id: room_id,
       });
 
-    let msg;
-    const newMsg = message;
-    newMsg.status = "Delivered";
-
-    if (!message.file) {
-      msg = await Message.create({
-        ...newMsg,
-      });
-    }
+    const message = await Message.findById(message_id);
 
     Promise.all([
       conversation.users.forEach((id) => {
         if (id.toString() === user_id) return;
-        else socket.to(id.toString()).emit("new_message", { message: msg });
+        else socket.to(id.toString()).emit("new_message", { message });
       }),
-    ]).then(() => callback({ message: msg }));
+    ]);
   });
 };
