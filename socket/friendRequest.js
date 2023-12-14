@@ -1,11 +1,11 @@
 const User = require("../models/user");
 const FriendRequest = require("../models/friendRequest");
-const i18next = require("../config/i18next");
 
 module.exports = (socket, t) => {
   // send friend request to user
   socket.on("friend_request", async (data, callback) => {
     const to = await User.findById(data.to);
+    const from = await User.findById(data.from);
 
     // check if already a request exists
     const existing_request_from_sender = await FriendRequest.find({
@@ -37,7 +37,7 @@ module.exports = (socket, t) => {
     });
 
     socket.to(to._id.toString()).emit("new_friend_request", {
-      message: t("New friend request recived"),
+      user_name: `${from.firstname} ${from.lastname}`,
     });
 
     callback("Request sent");
@@ -84,9 +84,7 @@ module.exports = (socket, t) => {
     });
 
     callback({
-      message: t("UserName was added to your friends list", {
-        username: `${user_sender.firstname} ${user_sender.lastname}`,
-      }),
+      user_name: `${user_sender.firstname} ${user_sender.lastname}`,
       friend: {
         _id: user_sender._id,
         firstname: user_sender.firstname,
@@ -125,7 +123,7 @@ module.exports = (socket, t) => {
     });
 
     callback({
-      message: t("Request rejected successfully"),
+      message: t("Done"),
       request_id: request._id,
     });
   });
@@ -138,7 +136,7 @@ module.exports = (socket, t) => {
       await FriendRequest.findByIdAndDelete(data.request_id);
 
       callback({
-        message: "Request deleted successfuly",
+        message: "Done",
         request_id: request._id,
       });
     }

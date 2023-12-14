@@ -89,11 +89,8 @@ exports.createMessage = async (req, res, next) => {
     if (!conversation)
       throw new AppError("This conversation dos not exist", 400);
     data.status = "Delivered";
-    let message;
-    if (!data.files) {
-      message = await Message.create({ ...data });
-    }
-    console.log(message);
+    const message = await Message.create({ ...data });
+
     res.status(203).json({ status: "OK", message_id: message._id, message });
   } catch (err) {
     next(err);

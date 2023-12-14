@@ -17,11 +17,6 @@ const schema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    type: {
-      type: String,
-      enum: ["Text", "Image", "Video", "Link", "Doc", "Voice", "Replay"],
-      required: true,
-    },
     replay: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Message",
@@ -29,12 +24,13 @@ const schema = new mongoose.Schema(
     text: {
       type: String,
     },
+    files: {
+      type: mongoose.Schema.Types.Array,
+      required: false,
+    },
     edited: {
       type: Boolean,
       default: false,
-    },
-    file: {
-      type: String,
     },
     status: {
       type: String,
