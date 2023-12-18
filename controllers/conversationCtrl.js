@@ -34,7 +34,7 @@ exports.getConversations = async (req, res, next) => {
       let data = {
         _id: conversation._id,
         friend_id: friendDoc._id,
-        name: `${friendDoc.firstname} ${friendDoc.lastname}`,
+        name: friendDoc.name,
         avatar: friendDoc.avatar,
         status: friendDoc.status,
         lastSeen: friendDoc.lastSeen || "",

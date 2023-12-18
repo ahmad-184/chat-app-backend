@@ -3,8 +3,7 @@ const { z } = require("zod");
 const registerValidator = (t) =>
   z
     .object({
-      firstname: z.string().min(1, { message: t("firstname is required") }),
-      lastname: z.string().min(1, { message: t("lastname is required") }),
+      name: z.string().min(1, { message: t("name is required") }),
       email: z
         .string()
         .min(1, { message: t("email is required") })
@@ -59,8 +58,7 @@ const passwordsValidator = (t) =>
     });
 
 const updateUserInfo = z.object({
-  firstname: z.string().min(1, { message: "firstname is required." }),
-  lastname: z.string().min(1, { message: "lastname is required." }),
+  name: z.string().min(1, { message: "name is required." }),
   about: z
     .string()
     .max(100, { message: "About must have less than 100 characters." })

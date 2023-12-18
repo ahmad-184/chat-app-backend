@@ -77,8 +77,7 @@ exports.register = async (req, res, next) => {
       req.body,
       "password",
       "confirmPassword",
-      "firstname",
-      "lastname",
+      "name",
       "email"
     );
 
@@ -91,8 +90,7 @@ exports.register = async (req, res, next) => {
       throw new AppError(t("Email already in use, Please login"), 400);
     else if (existing_user) {
       //* update user data and send them to "verifyOtp" route.
-      existing_user.firstname = filteredData.firstname;
-      existing_user.lastname = filteredData.lastname;
+      existing_user.name = filteredData.name;
       existing_user.email = filteredData.email;
       existing_user.password = filteredData.password;
       existing_user.confirmPassword = filteredData.confirmPassword;
@@ -144,7 +142,7 @@ exports.sendOtp = async (req, res, next) => {
     const mailData = {
       recipient: user.email,
       subject: "Tawk - verification code",
-      html: otpTemplate(user.firstname, generated_otp),
+      html: otpTemplate(user.name, generated_otp),
     };
 
     await mailSender(mailData);
@@ -239,8 +237,7 @@ exports.login = async (req, res, next) => {
     const token = await createToken({ userId: user._id });
 
     const userInfo = {
-      firstname: user.firstname,
-      lastname: user.lastname,
+      name: user.name,
       avatar: user.avatar,
       email: user.email,
       about: user.about,
@@ -293,7 +290,6 @@ exports.forgotPassword = async (req, res, next) => {
       await user.save();
 
       const URL = `http://localhost:3000/auth/reset-password?code=${resetToken}`;
-      console.log(URL);
 
       try {
         // TODO send URL to user email
@@ -301,7 +297,7 @@ exports.forgotPassword = async (req, res, next) => {
         const mailData = {
           recipient: user.email,
           subject: "Tawk - Link to reset your password",
-          html: resetPassTemplate(user.firstname, URL),
+          html: resetPassTemplate(user.name, URL),
         };
         await mailSender(mailData);
 

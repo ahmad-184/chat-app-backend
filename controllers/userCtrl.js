@@ -1,7 +1,5 @@
 const User = require("../models/user");
 const FriendRequest = require("../models/friendRequest");
-const OneToOneConversation = require("../models/oneToOneConversation");
-const Message = require("../models/message");
 const AppError = require("../helpers/AppError");
 const filterObj = require("../helpers/filterObj");
 const { updateUserInfo } = require("../validators");
@@ -12,13 +10,7 @@ exports.updateMe = async (req, res, next) => {
 
     if (!user) throw new AppError("user doc not found.", 500);
 
-    const filteredData = filterObj(
-      req.body,
-      "firstname",
-      "lastname",
-      "about",
-      "avatar"
-    );
+    const filteredData = filterObj(req.body, "name", "about", "avatar");
 
     await updateUserInfo.parse(filteredData);
 
@@ -27,10 +19,16 @@ exports.updateMe = async (req, res, next) => {
       validateModifiedOnly: true,
     });
 
+    const userInfo = {
+      name: updatedUser.name,
+      avatar: updatedUser.avatar,
+      about: updatedUser.about,
+    };
+
     res.status(200).json({
       status: 200,
-      message: "Profile updated successfully.",
-      user: updatedUser,
+      message: "Done",
+      user: userInfo,
     });
   } catch (err) {
     next(err);
@@ -42,7 +40,7 @@ exports.getUsers = async (req, res, next) => {
     const this_user = req.user;
 
     const allUsers = await User.find({ verified: true }).select(
-      "firstname lastname email avatar _id status"
+      "name email avatar _id status"
     );
 
     const filteredUsers = allUsers.filter(
@@ -64,7 +62,7 @@ exports.getFriends = async (req, res, next) => {
   try {
     const { friends } = await User.findById(req.user._id).populate(
       "friends",
-      "firstname lastname email avatar _id  status"
+      "name email avatar _id  status"
     );
 
     res.status(200).json({
@@ -83,11 +81,11 @@ exports.getFriendRequests = async (req, res, next) => {
     const friendRequests_forMe = await FriendRequest.find({
       reciver: req.user._id,
       status: "Pending",
-    }).populate("sender", "firstname email lastname avatar _id  status");
+    }).populate("sender", "name email avatar _id  status");
 
     const FriendRequest_I_Sent = await FriendRequest.find({
       sender: req.user._id,
-    }).populate("reciver", "firstname email lastname avatar _id  status");
+    }).populate("reciver", "name email avatar _id  status");
 
     res.status(200).json({
       status: 200,

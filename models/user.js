@@ -4,17 +4,13 @@ const bcrypt = require("bcrypt");
 const AppError = require("../helpers/AppError");
 
 const userSchema = new mongoose.Schema({
-  firstname: {
+  name: {
     type: String,
-    required: [true, "firstname is reqiured."],
-  },
-  lastname: {
-    type: String,
-    required: [true, "lastname is reqiured."],
+    required: [true, "name is reqiured"],
   },
   email: {
     type: String,
-    required: [true, "email is reqiured."],
+    required: [true, "email is reqiured"],
     unique: true,
     validate: {
       validator: (email) => {
@@ -42,7 +38,6 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     default: "",
-    // default: "https://avatar.iran.liara.run/public",
   },
   passwordChangeAt: {
     type: Date,
