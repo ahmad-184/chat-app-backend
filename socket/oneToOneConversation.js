@@ -3,8 +3,6 @@ const OneToOneConversation = require("../models/oneToOneConversation");
 const Message = require("../models/message");
 
 module.exports = (socket, t) => {
-  // send message
-
   socket.on("start_conversation", async ({ friend_id, user_id }, callback) => {
     try {
       const isConversationExists = await OneToOneConversation.find({
@@ -60,7 +58,6 @@ module.exports = (socket, t) => {
 
         callback({
           conversation: data,
-          messages,
         });
       } else {
         const messages = await Message.find({
@@ -80,7 +77,6 @@ module.exports = (socket, t) => {
 
         callback({
           conversation: data,
-          messages,
         });
       }
     } catch (err) {
@@ -127,32 +123,6 @@ module.exports = (socket, t) => {
       await socket.leave(room_id);
 
       callback({ message: "Leaved room" });
-    } catch (err) {
-      console.log(err);
-      return socket.emit("error", {
-        message: err.message,
-      });
-    }
-  });
-
-  socket.on("send_message", async ({ message_id, room_id, user_id }) => {
-    try {
-      const conversation = await OneToOneConversation.findById(room_id);
-      if (!conversation)
-        return socket.emit("error", {
-          message: "This conversation dos not exist",
-          code: "CONV_NOT_EXIST",
-          conv_id: room_id,
-        });
-
-      const message = await Message.findById(message_id);
-
-      Promise.all([
-        conversation.users.forEach((id) => {
-          if (id.toString() === user_id) return;
-          else socket.to(id.toString()).emit("new_message", { message });
-        }),
-      ]);
     } catch (err) {
       console.log(err);
       return socket.emit("error", {

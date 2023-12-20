@@ -30,7 +30,7 @@ const schema = new mongoose.Schema(
     },
     edited: {
       type: Boolean,
-      default: false,
+      default: [false, true],
     },
     status: {
       type: String,
@@ -39,6 +39,11 @@ const schema = new mongoose.Schema(
     },
     createdAt_day: {
       type: String,
+    },
+    deleted: {
+      type: Boolean,
+      default: false,
+      enum: [false, true],
     },
   },
   { timestamps: true }

@@ -4,6 +4,7 @@ const rateLimit = require("express-rate-limit");
 const authRoutes = require("./authRoute");
 const userRoutes = require("./userRoute");
 const conversationRoute = require("./conversationRoute");
+const messageRoute = require("./messageRoute");
 
 const AuthRoutelimiter = rateLimit({
   limit: 25,
@@ -14,5 +15,6 @@ const AuthRoutelimiter = rateLimit({
 routes.use("/auth", AuthRoutelimiter, authRoutes);
 routes.use("/user", userRoutes);
 routes.use("/conversation", conversationRoute);
+routes.use("/message", messageRoute);
 
 module.exports = routes;
