@@ -22,4 +22,4 @@ const schema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("OneToOneConversation", schema);
+module.exports = mongoose.model("Conversation", schema);

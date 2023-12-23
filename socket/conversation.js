@@ -1,11 +1,12 @@
 const User = require("../models/user");
-const OneToOneConversation = require("../models/oneToOneConversation");
+const Conversations = require("../models/conversation");
 const Message = require("../models/message");
+const filterObj = require("../helpers/filterObj");
 
 module.exports = (socket, t) => {
   socket.on("start_conversation", async ({ friend_id, user_id }, callback) => {
     try {
-      const isConversationExists = await OneToOneConversation.find({
+      const isConversationExists = await Conversations.find({
         $and: [
           {
             users: {
@@ -24,6 +25,7 @@ module.exports = (socket, t) => {
         ],
       });
       const friendDoc = await User.findById(friend_id);
+      const userDoc = await User.findById(user_id);
 
       let data = {
         friend_id: friendDoc._id,
@@ -32,11 +34,17 @@ module.exports = (socket, t) => {
         status: friendDoc.status,
         lastSeen: friendDoc.lastSeen || "",
         typing: false,
+        users: [friendDoc, userDoc].map((item) => ({
+          _id: item._id,
+          email: item.email,
+          name: item.name,
+          avatar: item.avatar,
+        })),
       };
 
       // convertion dos not exist. create conversation and sed it to user
       if (!Boolean(isConversationExists.length)) {
-        const conversation = await OneToOneConversation.create({
+        const conversation = await Conversations.create({
           users: [friend_id, user_id],
         });
         const messages = await Message.find({
@@ -94,7 +102,7 @@ module.exports = (socket, t) => {
           message: "Room id is required",
         });
 
-      const isConversationExists = await OneToOneConversation.findById(room_id);
+      const isConversationExists = await Conversations.findById(room_id);
       if (!Boolean(isConversationExists))
         return socket.emit("error", {
           message: "This conversation not exist",

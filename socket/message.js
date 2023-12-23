@@ -1,11 +1,11 @@
 const User = require("../models/user");
-const OneToOneConversation = require("../models/oneToOneConversation");
+const Conversations = require("../models/conversation");
 const Message = require("../models/message");
 
 module.exports = (socket, t) => {
   socket.on("send_message", async ({ message_id, room_id, user_id }) => {
     try {
-      const conversation = await OneToOneConversation.findById(room_id);
+      const conversation = await Conversations.findById(room_id);
       if (!conversation)
         return socket.emit("error", {
           message: "This conversation dos not exist",

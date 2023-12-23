@@ -1,5 +1,5 @@
 const Message = require("../models/message");
-const OneToOneConversation = require("../models/oneToOneConversation");
+const Conversation = require("../models/conversation");
 const AppError = require("../helpers/AppError");
 
 exports.getMessages = async (req, res, next) => {
@@ -32,15 +32,19 @@ exports.getMessages = async (req, res, next) => {
 exports.createMessage = async (req, res, next) => {
   try {
     const data = req.body;
-    const conversation = await OneToOneConversation.findById(
-      data.conversation_id
-    );
+    console.log(data);
+    const conversation = await Conversation.findById(data.conversation_id);
     if (!conversation)
       throw new AppError("This conversation dos not exist", 400);
     data.status = "Delivered";
-    const message = await Message.create({ ...data });
+    await Message.create({ ...data });
+    const createdMessage = await Message.findById(data._id).populate("replay");
 
-    res.status(203).json({ status: "OK", message_id: message._id, message });
+    res.status(203).json({
+      status: "OK",
+      message_id: createdMessage._id,
+      message: createdMessage,
+    });
   } catch (err) {
     next(err);
   }

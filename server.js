@@ -41,7 +41,7 @@ process.on("SIGTERM", () => {
 // socket realtime functionalitis
 
 const friendRequest = require("./socket/friendRequest");
-const oneToOneConversation = require("./socket/oneToOneConversation");
+const conversation = require("./socket/conversation");
 const message = require("./socket/message");
 const updateFriendsStatus = require("./socket/updateFriendsStatus");
 const updateFriendsTypingStatus = require("./socket/updateFriendsTypingStatus");
@@ -72,7 +72,7 @@ socket_io.on("connection", async (socket) => {
   }
 
   friendRequest(socket, t);
-  oneToOneConversation(socket, t);
+  conversation(socket, t);
   message(socket, t);
   updateFriendsTypingStatus(socket, t);
   updateMessageStatus(socket, t);
