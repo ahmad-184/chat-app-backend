@@ -21,4 +21,12 @@ routes.post("/delete_message", routeProtector, messageCtrl.deleteMessage);
 // @Method POST update a message
 routes.post("/update_message/:id", routeProtector, messageCtrl.updateMessage);
 
+// @Route http://localhost:9000/api/message/get_replay_message/:conversation_id/:message_id
+// @Method Get get replayed message
+routes.get(
+  "/find_replayed_message/:conversation_id/:message_id",
+  routeProtector,
+  messageCtrl.findReplayedMessage
+);
+
 module.exports = routes;

@@ -85,3 +85,62 @@ exports.updateMessage = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.findReplayedMessage = async (req, res, next) => {
+  try {
+    const message_id = req.params.message_id;
+    const conversation_id = req.params.conversation_id;
+
+    const isMessageExist = await Message.findById(message_id);
+    if (!isMessageExist) throw new AppError("this message does not exist", 400);
+
+    const numberOfMessages = await Message.find({
+      conversation_id: conversation_id,
+    }).countDocuments();
+
+    const messages = await Message.find({
+      conversation_id: conversation_id,
+    })
+      .populate("replay")
+      .sort({ createdAt: -1 });
+
+    const chunkSize = req.perPage || 25;
+    const chunks = [];
+
+    for (let i = 0; i < messages.length; i += chunkSize) {
+      const chunk = messages.slice(i, i + chunkSize);
+      chunks.push(chunk);
+    }
+
+    let data = [];
+    let isMsgFound = false;
+    let perPage = req.perPage || 25;
+    let page;
+
+    chunks.forEach((pack, index) => {
+      if (isMsgFound) return;
+      for (let msg of pack) {
+        if (msg._id.toString() === message_id.toString()) {
+          isMsgFound = true;
+        }
+      }
+      if (!isMsgFound) {
+        data = [...data, ...pack];
+      } else {
+        data = [...data, ...pack];
+        page = index + 1;
+        return;
+      }
+    });
+
+    res.status(200).json({
+      currentPage: page,
+      nextPage: page + 1,
+      hasNextPage: perPage * page < numberOfMessages,
+      status: 200,
+      data,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
